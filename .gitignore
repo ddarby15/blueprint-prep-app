@@ -1,2 +1,9 @@
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+
+# environment variables
+.env
+
 # full kaggle dataset doesn't need to go up to github
 /data/2026
