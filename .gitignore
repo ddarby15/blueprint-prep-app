@@ -6,4 +6,4 @@ __pycache__/
 .env
 
 # full kaggle dataset doesn't need to go up to github
-/data/2026
+/data/2026/
