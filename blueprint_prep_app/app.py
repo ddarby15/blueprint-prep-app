@@ -17,27 +17,41 @@ st.caption("NCAA Matchup Analytics for Coaches")
 
 # --- Sidebar controls ---
 with st.sidebar:
-    st.title("Matchup Setup")
+    with st.form("controls"):
+        st.title("Matchup Selection")
 
-    season = st.selectbox(
-        "Select Season",
-        options=[2026, 2025, 2024]
-    )
-    
-    division = st.selectbox(
-        "Select Division",
-        options=["Mens", "Womens"]
-    )
+        season = st.selectbox(
+            "Season",
+            options=[2026, 2025, 2024]
+        )
+        
+        division = st.selectbox(
+            "Division",
+            options=["Mens", "Womens"]
+        )
 
-    team_a = st.selectbox(
-        "Select Team A",
-        options=["Iowa", "Duke", "Houston", "UConn", "Purdue"]
-    )
+        team_a_conf = st.selectbox(
+            "Team A Conference",
+            options=["All", "ACC", "SEC", "Big 10", "Big 12"]
+        )
+        
+        team_a = st.selectbox(
+            "Team A",
+            options=["Michigan St", "Texas Tech", "UCLA", "Iowa", "Duke", "Houston", "Purdue"]
+        )
 
-    team_b = st.selectbox(
-        "Select Team B",
-        options=["Florida", "Kansas", "Tennessee", "Auburn"]
-    )
+        team_b_conf = st.selectbox(
+            "Team B Conference",
+            options=["All", "ACC", "SEC", "Big 10", "Big 12"]
+        )
+        
+        team_b = st.selectbox(
+            "Select Team B",
+            options=["Alabama", "Connecticut", "Florida", "Kansas", "Tennessee", "Auburn"]
+        )
+        
+        # apply changes button
+        applied = st.form_submit_button("Apply", type="secondary")
     
 # Prediction placeholder
 st.markdown("## Matchup Prediction")
@@ -115,6 +129,40 @@ tab1, tab2 = st.tabs(["Ratings", "Four Factors"])
 with tab1:
     st.markdown("### Ratings Trend Comparison")
     ratings_a_col, ratings_b_col = st.columns(2)
+    
+    ratings_cols = ['NetRtg', 'ORtg', 'DRtg']
+        
+    # Team A Metrics (Offense)
+    with ratings_a_col:
+        team_a_ratings_fig, _ = plot_team_trends(
+            df=team_a_adv_stats,
+            team_name=team_a,
+            title="Raw Ratings",
+            cols=ratings_cols,
+            x_col=None,
+            sort_by=None,
+            ncols=1,
+            rolling_window=5,
+            league_df=adv_league_data,
+            show_league_avg=True,
+        )
+        st.pyplot(team_a_ratings_fig, use_container_width=False)
+
+    # Team B's Opponents Metrics (Defense)
+    with ratings_b_col:
+        team_a_ratings_fig, _ = plot_team_trends(
+            df=team_b_adv_stats,
+            team_name=team_b,
+            title="Raw Ratings",
+            cols=ratings_cols,
+            x_col=None,
+            sort_by=None,
+            ncols=1,
+            rolling_window=5,
+            league_df=adv_league_data,
+            show_league_avg=True,
+        )
+        st.pyplot(team_a_ratings_fig, use_container_width=False)
 
 
 # Tab 2 - Plot Four Factors Trends
@@ -130,7 +178,7 @@ with tab2:
         
         # Team A Metrics (Offense)
         with ff_a_off_col:
-            team_a_off_adv_fig, axes = plot_team_trends(
+            team_a_off_adv_fig, _ = plot_team_trends(
                 df=team_a_adv_stats,
                 team_name=team_a,
                 title="Offense",
@@ -146,7 +194,7 @@ with tab2:
 
         # Team B's Opponents Metrics (Defense)
         with ff_b_off_col:
-            team_b_def_adv_fig, axes = plot_team_trends(
+            team_b_def_adv_fig, _ = plot_team_trends(
                 df=team_b_adv_stats,
                 team_name=team_b,
                 title="Defense",
@@ -166,7 +214,7 @@ with tab2:
         
         # Team A's Opponents Metrics (Defense)
         with ff_a_def_col:
-            team_a_def_adv_fig, axes = plot_team_trends(
+            team_a_def_adv_fig, _ = plot_team_trends(
                 df=team_a_adv_stats,
                 team_name=team_a,
                 title="Defense",
@@ -182,7 +230,7 @@ with tab2:
 
         # Team B Metrics (Offense)
         with ff_b_def_col:
-            team_b_off_adv_fig, axes = plot_team_trends(
+            team_b_off_adv_fig, _ = plot_team_trends(
                 df=team_b_adv_stats,
                 team_name=team_b,
                 title="Offense",
@@ -195,4 +243,9 @@ with tab2:
                 show_league_avg=True,
             )
             st.pyplot(team_b_off_adv_fig, use_container_width=False)
+           
+st.markdown(f"### {team_a} Advanced Stats Schedule")
+st.dataframe(team_a_adv_stats)
+st.markdown(f"### {team_b} Advanced Stats Schedule")
+st.dataframe(team_b_adv_stats)
     

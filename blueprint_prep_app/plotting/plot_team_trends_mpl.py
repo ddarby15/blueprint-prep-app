@@ -22,8 +22,6 @@ def plot_team_trends(
     show_trend: bool = True,
     show_league_avg: bool = True,
     league_df: pd.DataFrame | None = None,
-    league_avg_label: str = "League avg",
-    marker: str = "o",
     show: bool = True,
 ):
     """
@@ -77,12 +75,6 @@ def plot_team_trends(
         Dataframe used to compute league averages. If None, uses `df`.
         This is useful if you want to plot one subset but compare against a broader
         or different reference population.
-
-    league_avg_label : str, default="League avg"
-        Legend label for the league-average line.
-
-    marker : str, default="o"
-        Marker style for the raw line.
 
     show : bool, default=True
         Whether to display the figure immediately.
@@ -138,10 +130,12 @@ def plot_team_trends(
 
         if show_raw:
             ax.plot(
-                x,
-                y,
-                marker=marker,
+                x, y,
+                color="lightskyblue",
+                linestyle="--",
+                marker="o",
                 linewidth=1.8,
+                alpha=1.0,
                 label="Game-by-game",
             )
 
@@ -150,9 +144,10 @@ def plot_team_trends(
             ax.plot(
                 x,
                 trend,
-                linewidth=2.5,
-                linestyle="--",
-                label=f"{rolling_window}-game rolling avg",
+                color="blue",
+                linewidth=2,
+                linestyle="-",
+                label=f"{rolling_window}-Game MA: {trend.iloc[-1]:.2f}",
             )
 
         if show_league_avg and col in league_averages and pd.notna(league_averages[col]):
@@ -160,9 +155,9 @@ def plot_team_trends(
                 y=league_averages[col],
                 color='red',
                 linewidth=2,
-                linestyle=":",
-                alpha=0.9,
-                label=f"{league_avg_label}: {league_averages[col]:.2f}",
+                linestyle="-",
+                # alpha=0.9,
+                label=f"League Avg: {league_averages[col]:.2f}",
             )
 
         ax.set_title(col)
@@ -176,7 +171,7 @@ def plot_team_trends(
     for ax in flat_axes[len(columns):]:
         ax.remove()
 
-    fig.suptitle(f"{team_name} {title}", fontsize=14, y=1.02)
+    fig.suptitle(f"{team_name} - {title}", fontsize=14, y=1.02)
     fig.tight_layout()
 
     if show:
