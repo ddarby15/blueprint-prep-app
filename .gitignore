@@ -7,3 +7,5 @@ __pycache__/
 
 # full kaggle dataset doesn't need to go up to github
 /data/2026/
+
+/notebooks

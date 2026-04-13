@@ -1,6 +1,6 @@
 import pandas as pd
 
-from load_data.common import load_csv_data # filter_league_data, add_team_names
+from load_data.common import load_csv_data
 from utils.get_team_id import get_team_id
 
 
@@ -64,7 +64,7 @@ def filter_team_stats(
     data = data.loc[data["TeamID"] == team_id].copy()
 
     if add_names:
-        data = add_team_names(data, teams_df=teams_df)
+        data = _add_team_names(data, teams_df=teams_df)
 
     sort_cols = [col for col in ["Season", "TeamID", "DayNum"] if col in data.columns]
     if sort_cols:
@@ -120,11 +120,75 @@ def filter_league_data(
     return out
 
 
+# -----------------------------
+# Team Ratings 
+# -----------------------------
+def filter_team_ratings(
+    df: pd.DataFrame,
+    team_name: str,
+    season: int,
+    division: str,
+    add_names: bool = False,
+    teams_df: pd.DataFrame | None = None,
+) -> dict:
+    """
+    Filter a team-level ratings dataframe to one team in one season.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Team-level ratings dataframe (srs_ratings_men, srs_ratings_women  etc.).
+
+    team_name : str
+        Team name to filter to.
+
+    season : int
+        Season to filter to.
+
+    division : str
+        One of:
+        - "Mens"
+        - "Womens"
+
+    add_names : bool, default=False
+        If True, merge TeamName and TeamName_opp columns.
+
+    teams_df : pd.DataFrame | None, default=None
+        Optional teams lookup dataframe. If None, teams.csv will be loaded.
+
+    Returns
+    -------
+    dict
+        Dictionary containing the selected team's ratings row for the
+        specified season.
+    """
+    if teams_df is None:
+        teams_df = load_csv_data("teams.csv")
+            
+    team_id = get_team_id(
+        team_name=team_name,
+        division=division,
+        teams_df=teams_df,
+    )
+
+    data = filter_league_data(
+        df=df,
+        division=division,
+        season=season,
+    )
+
+    data = data.loc[data["TeamID"] == team_id].copy()
+
+    if add_names:
+        data = _add_team_names(data, teams_df=teams_df)
+
+    return data.iloc[0].to_dict()
+
 
 # -----------------------------
 # Helpers
 # -----------------------------
-def add_team_names(
+def _add_team_names(
     df: pd.DataFrame,
     teams_df: pd.DataFrame,
     team_col: str = "TeamID",
